@@ -1,0 +1,217 @@
+/*----------INCLUDING HEADER FILES--------*/
+
+
+#include <iostream>
+#include <conio.h>
+#include <fstream>
+#include<string>
+#include<cstring>
+#include <iomanip>
+using namespace std;
+
+ifstream indata;
+ofstream outdata;
+string cell1;
+int ch;
+char occ[25],hand_dom[10],height[10],gender[10];
+
+void menu_func();
+void entry_func();
+void predict_func();
+
+/*------------list function------------*/
+void list(){
+	char line[100];
+	indata.open("database0.csv");	
+	while(indata.good())
+	{
+		indata>>line;
+		cout<<line<<endl;
+	}
+	indata.close();
+	
+}
+
+/*--------MENU FUNCTION--------*/
+
+void menu_func()
+{
+	system("cls");
+	cout<<"\n\tENTER YOUR CHOICE:\n";
+	cout<<"\n\t\t1.Entry in the database\n\n\t\t";
+	cout<<"2.Prediction (Employee could be a MALE or FEMALE)\n\t\t";
+	cout<<"\n\t\t3.Exit\n\t\t";
+//	cout<<"3.LIST\n\n\t\t";
+	cin>>ch;	
+	if(ch==1)
+	{
+		entry_func();
+	}
+	else if(ch==2)
+	{
+		predict_func();
+	}
+	else if(ch==3)
+	{
+		exit(0);
+	}
+	else
+	{
+		cout<<"\n\t\t\tWRONG INPUT!!!!!";
+		getch();
+		menu_func();
+	}
+}
+
+
+/*--------ENTRY FUNCTION--------*/
+
+void entry_func()
+{
+	system("cls");
+	printf("\n\t\tEnter the details of the Employee:\n\n\t\t");
+	cout<<"\n\n\t\tName: ";
+	cin>>cell1;
+	cout<<"\n\t\tOccupation: ";
+	cin>>occ;
+	cout<<"\n\t\tHand Dominance (right | left): ";
+	cin>>hand_dom;
+	cout<<"\n\t\tHeight (tall | medium | short): ";
+	cin>>height;
+	cout<<"\n\t\tGender (male | female): ";
+	cin>>gender;
+//	cin>>cell1;
+	outdata.open("database0.csv", ios::app);
+
+	outdata <<endl;
+	outdata << cell1;
+	outdata <<",";
+	outdata <<occ;
+	outdata <<",";
+	outdata <<hand_dom;
+	outdata <<",";
+	outdata <<height;
+	outdata <<",";
+	outdata <<gender;
+	cout<<"\n\n\t\tThe entry has been saved into Database";
+	getch();
+	system("cls");
+	cout<<"\n\n\n\t\tWANT TO GO TO THE \n\t\t\tMENU SCREEN(Press 1) or \n\t\t\tEXIT(Press 2)\n\t\t\t";
+	cin>>ch;
+	if(ch==1)
+	{
+		menu_func();
+	}
+	else
+	{
+		exit(0);
+	}
+	system("cls");
+}
+
+
+/*--------PREDICTION FUNCTION--------*/
+
+void predict_func()
+{
+	system("cls");
+	indata.open("database0.csv");
+	int male=0,female=0,total,count_occ_m=0,count_hand_m=0,count_height_m=0;
+	int count_occ_f=0,count_hand_f=0,count_height_f=0;
+	char line[100];
+	float male_prob,female_prob;
+	
+	while(indata.good())
+	{
+		indata>>line;
+		if(std::strstr(line,"female")==NULL)
+		{
+			male++;
+		}
+		else if(std::strstr(line,"female")!=NULL)
+		{
+			female++;
+		}
+	}
+	indata.close();
+	total=male+female;
+//	cout<<male<<"   "<<female;
+	//cout << indata;//This gives me a memory address	
+	cout<<"\n\tEnter the details to PREDICT";
+	cout<<"\n\n\t\tOccupation: ";
+	cin>>occ;
+	cout<<"\n\n\t\tHand Dominance (right | left): ";
+	cin>>hand_dom;
+	cout<<"\n\n\t\tHeight (tall | medium | short): ";
+	cin>>height;
+//	cout<<occ<<hand_dom<<height<<endl;
+//	getch();
+	indata.open("database0.csv");
+	while(indata.good())
+	{
+		indata>>line;
+//		cout<<line;
+//		getch();
+		if(std::strstr(line,"female")==NULL && std::strstr(line,occ)!=NULL)
+		{
+			count_occ_m++;
+		}
+		if(std::strstr(line,"female")==NULL && std::strstr(line,hand_dom)!=NULL)
+		{
+			count_hand_m++;
+		}
+		if(std::strstr(line,"female")==NULL && std::strstr(line,height)!=NULL)
+		{
+			count_height_m++;
+		}
+		if(std::strstr(line,"female")!=NULL && std::strstr(line,occ)!=NULL)
+		{
+			count_occ_f++;
+		}
+		if(std::strstr(line,"female")!=NULL && std::strstr(line,hand_dom)!=NULL)
+		{
+			count_hand_f++;
+		}
+		if(std::strstr(line,"female")!=NULL && std::strstr(line,height)!=NULL)
+		{
+			count_height_f++;
+		}
+	}
+	male_prob= (float) count_occ_m*count_hand_m*count_height_m/(male*male*(male+female));
+	female_prob= (float)count_occ_f*count_hand_f*count_height_f/(female*female*(male+female));
+	system("cls");
+	cout<<"\n\n\n\n\tThe probability that the person would be male is:"<<male_prob;
+	cout<<"\n\n\tThe probability that the person would be female is:"<<female_prob;
+	if(male_prob>female_prob)
+	{
+		cout<<"\n\n\n\t\tThe employee should be most probably a MALE";
+	}
+	else if(male_prob<female_prob)
+	{
+		cout<<"\n\n\n\t\tThe employee should be most probably a FEMALE";
+	}	
+	else if(male_prob==female_prob)
+	{
+		cout<<"\n\n\n\t\tThe employee could be a MALE or a FEMALE";
+	}
+	getch();
+	system("cls");
+	
+	cout<<"\n\n\n\t\tWANT TO GO TO THE \n\n\t\t\tMENU SCREEN(Press 1) or \n\n\t\t\tEXIT(Press 2)\n\t\t\t";
+	cin>>ch;
+	if(ch==1)
+	{
+		menu_func();
+	}
+	else
+	{
+		exit(0);
+	}
+	system("cls");
+	
+}
+
+int main()
+{
+	menu_func();
+}
